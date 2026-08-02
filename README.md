@@ -45,9 +45,9 @@ VitalTrack/
 ## Getting Started
 
 ### Prerequisites
-- Python 3.x
+- Python
 - ESP32 board + Arduino IDE / PlatformIO
-- Required sensors (listed above)
+- Required sensors
 
 ### Installation
 
