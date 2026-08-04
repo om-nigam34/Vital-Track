@@ -69,7 +69,7 @@ VitalTrack/
    python app.py
    ```
 
-5. Open the dashboard in your browser at `http://localhost:5000` *(update port if different)*
+5. Open the dashboard in your browser at `http://localhost:port`
 
 ## How It Works
 
@@ -78,15 +78,7 @@ VitalTrack/
 3. The backend validates and stores incoming data in the SQLite database.
 4. The dashboard fetches and displays this data in real time, allowing remote monitoring of the patient's condition.
 
-## Future Improvements
-
-- SMS/email alerts for critical vitals
-- Multi-patient support
-- Mobile app integration
-- Cloud deployment for remote access
-
 
 ## Author
 
 **Om Nigam**
-B.Tech ECE, PSIT Kanpur
