@@ -16,9 +16,9 @@ VitalTrack is an IoT-based patient vitals monitoring system that captures real-t
 |---|---|
 | Microcontroller | ESP32 |
 | Sensors | MAX30100 for HR/SpO2, DS18B20 for temperature |
-| Backend | Flask (Python) |
+| Backend | Flask |
 | Database | SQLite |
-| Frontend/Dashboard | HTML/CSS/JS, Chart.js |
+| Frontend/Dashboard | HTML/CSS/JS, |
 | Communication | Wi-Fi / HTTP |
 
 ## System Architecture
