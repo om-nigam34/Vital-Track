@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VitalTrack - Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="brand-mark" id="brandMark"></div>
+      <div class="brand-text">
+        <div class="brand-name"><span class="accent-green">VITAL</span>-TRACK</div>
+        <div class="brand-tag">Health Monitoring System</div>
+      </div>
+    </div>
+
+    <div id="loginPane">
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Sign in to monitor your patients</div>
+
+      <div id="loginError" class="auth-error hidden"></div>
+
+      <form id="loginForm">
+        <div class="form-row">
+          <label for="loginUsername">Username</label>
+          <input type="text" id="loginUsername" autocomplete="username" required />
+        </div>
+        <div class="form-row">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn" id="loginBtn">Sign In</button>
+      </form>
+
+      <div class="auth-switch">
+        New here? <button type="button" id="showRegister">Create an account</button>
+      </div>
+
+      <div class="auth-demo">Demo login &mdash; username: <strong>admin</strong> &nbsp;|&nbsp; password: <strong>admin123</strong><br/>(created by running <code>python seed.py</code>)</div>
+    </div>
+
+    <div id="registerPane" class="hidden">
+      <div class="auth-title">Create your account</div>
+      <div class="auth-sub">Set up a login for the dashboard</div>
+
+      <div id="registerError" class="auth-error hidden"></div>
+
+      <form id="registerForm">
+        <div class="form-row">
+          <label for="regName">Full name</label>
+          <input type="text" id="regName" required />
+        </div>
+        <div class="form-row">
+          <label for="regUsername">Username</label>
+          <input type="text" id="regUsername" required />
+        </div>
+        <div class="form-row">
+          <label for="regPassword">Password</label>
+          <input type="password" id="regPassword" minlength="6" required />
+        </div>
+        <button type="submit" class="btn" id="registerBtn">Create Account</button>
+      </form>
+
+      <div class="auth-switch">
+        Already have an account? <button type="button" id="showLogin">Sign in</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/icons.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
