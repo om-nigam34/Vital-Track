@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VitalTrack - Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark" id="brandMark"></div>
+      <div class="brand-text">
+        <div class="brand-name"><span class="accent-green">VITAL</span>-TRACK</div>
+        <div class="brand-tag">Health Monitoring System</div>
+      </div>
+    </div>
+
+    <ul class="nav-group">
+      <li><a class="nav-link active" href="dashboard.html"><span></span>Dashboard</a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Real-time Monitor<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>History / Records<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Reports<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link" href="alerts.html"><span></span>Alerts<span class="badge-count hidden" id="sidebarAlertBadge">0</span></a></li>
+      <li><a class="nav-link" href="patients.html"><span></span>Patients</a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Settings<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Profile<span class="soon-tag">Soon</span></a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="patient-card">
+        <div class="avatar" id="patientAvatar">--</div>
+        <div class="who">
+          <div class="name" id="patientCardName">Loading...</div>
+          <div class="meta" id="patientCardMeta">-</div>
+        </div>
+      </div>
+      <div class="conn-dot-row">
+        <span class="dot" id="patientConnDot"></span>
+        <span id="patientConnLabel">Checking device...</span>
+      </div>
+      <a class="logout-link" href="#" id="logoutBtn"><span></span>Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="hamburger"></span>
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-subtitle">Real-time overview of patient's vital signs</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <select id="patientSelect" class="patient-select"></select>
+        <div class="topbar-stat"><span id="iconCalendar"></span><span id="topDate">--</span></div>
+        <div class="topbar-stat"><span id="iconClock"></span><span id="topClock">--:--:--</span></div>
+        <div class="topbar-stat"><span id="iconWifi"></span></div>
+        <div class="admin-chip">
+          <div class="avatar" id="adminAvatar">A</div>
+          <span class="name" id="adminName">Admin</span>
+          <span id="iconChevron"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="alert-banner hidden" id="alertBanner">
+        <span id="bannerIcon"></span>
+        <span><strong>ALERT:</strong> <span id="bannerText">-</span></span>
+        <span class="spacer"></span>
+        <a href="alerts.html"><button class="view-btn">View Alerts</button></a>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="grid-4">
+        <div class="card stat-card hr">
+          <div class="stat-head">
+            <div class="stat-icon hr" id="iconHr"></div>
+            <div class="stat-label">Heart Rate</div>
+          </div>
+          <div class="stat-value"><span class="num" id="hrValue">--</span><span class="unit">BPM</span></div>
+          <div class="stat-range">Normal: 60 - 100 BPM</div>
+          <canvas class="stat-spark" id="hrSpark"></canvas>
+        </div>
+
+        <div class="card stat-card spo2">
+          <div class="stat-head">
+            <div class="stat-icon spo2" id="iconSpo2"></div>
+            <div class="stat-label">SpO2</div>
+          </div>
+          <div class="stat-value"><span class="num" id="spo2Value">--</span><span class="unit">%</span></div>
+          <div class="stat-range">Normal: 95 - 100 %</div>
+          <canvas class="stat-spark" id="spo2Spark"></canvas>
+        </div>
+
+        <div class="card stat-card temp">
+          <div class="stat-head">
+            <div class="stat-icon temp" id="iconTemp"></div>
+            <div class="stat-label">Temperature</div>
+          </div>
+          <div class="stat-value"><span class="num" id="tempValue">--</span><span class="unit">°C</span></div>
+          <div class="stat-range">Normal: 36.1 - 37.2 °C</div>
+          <canvas class="stat-spark" id="tempSpark"></canvas>
+        </div>
+
+        <div class="card stat-card ecg">
+          <div class="stat-head">
+            <div class="stat-icon ecg" id="iconEcg"></div>
+            <div class="stat-label">ECG Status</div>
+          </div>
+          <div class="stat-value"><span class="num" id="ecgValue">--</span></div>
+          <div class="stat-range" id="ecgSub">Sinus Rhythm</div>
+        </div>
+      </div>
+
+      <!-- ECG + Trend -->
+      <div class="grid-2-wide">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span id="iconEcgTitle"></span>ECG Waveform (Real-time)</div>
+            <div class="card-sub">Gain: 10mm/mV</div>
+            <div class="live-chip"><span class="pulse-dot"></span>Live</div>
+          </div>
+          <div class="chart-box"><canvas id="ecgCanvas" style="width:100%;height:100%;"></canvas></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span id="iconTrendTitle"></span>Vitals Trend</div>
+            <select class="select-mini" id="trendRange">
+              <option value="15">15 Min</option>
+              <option value="60" selected>1 Hour</option>
+              <option value="180">3 Hours</option>
+            </select>
+          </div>
+          <div class="legend-row" style="margin-bottom:10px;">
+            <span><span class="dot-sq" style="background:#f0546a"></span>Heart Rate (BPM)</span>
+            <span><span class="dot-sq" style="background:#2e9bff"></span>SpO2 (%)</span>
+            <span><span class="dot-sq" style="background:#34d399"></span>Temperature (°C)</span>
+          </div>
+          <div class="chart-box"><canvas id="trendCanvas"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Readings / Alerts / Device -->
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Latest Readings</div></div>
+          <div id="latestReadingsList"></div>
+          <div class="last-updated" id="lastUpdated">Last updated: --</div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Recent Alerts</div>
+            <a class="link-btn" href="alerts.html">View All</a>
+          </div>
+          <div id="recentAlertsList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-title">Device & Connection</div></div>
+          <div id="deviceInfoList"></div>
+          <div style="margin-top:14px;">
+            <button class="btn btn-outline" id="deviceToggleBtn"><span id="iconPower"></span><span id="deviceToggleLabel">Disconnect Device</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-note">&copy; 2026 Vital-Track Health Monitoring System. All rights reserved.</div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ecg-monitor.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
