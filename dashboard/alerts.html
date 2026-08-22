@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VitalTrack - Alerts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark" id="brandMark"></div>
+      <div class="brand-text">
+        <div class="brand-name"><span class="accent-green">VITAL</span>-TRACK</div>
+        <div class="brand-tag">Health Monitoring System</div>
+      </div>
+    </div>
+
+    <ul class="nav-group">
+      <li><a class="nav-link" href="dashboard.html"><span></span>Dashboard</a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Real-time Monitor<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>History / Records<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Reports<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link active" href="alerts.html"><span></span>Alerts<span class="badge-count hidden" id="sidebarAlertBadge">0</span></a></li>
+      <li><a class="nav-link" href="patients.html"><span></span>Patients</a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Settings<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Profile<span class="soon-tag">Soon</span></a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <a class="logout-link" href="#" id="logoutBtn"><span></span>Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="hamburger"></span>
+        <div>
+          <div class="page-title">Alerts</div>
+          <div class="page-subtitle">Threshold breaches across all patients</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <select id="patientFilter" class="patient-select">
+          <option value="">All Patients</option>
+        </select>
+        <div class="topbar-stat"><span id="iconCalendar"></span><span id="topDate">--</span></div>
+        <div class="topbar-stat"><span id="iconClock"></span><span id="topClock">--:--:--</span></div>
+        <div class="admin-chip">
+          <div class="avatar" id="adminAvatar">A</div>
+          <span class="name" id="adminName">Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <div class="card-head">
+          <div class="filter-tabs" id="filterTabs">
+            <span class="filter-tab active" data-filter="all">All</span>
+            <span class="filter-tab" data-filter="unread">Unread</span>
+          </div>
+          <button class="btn btn-outline" id="markAllReadBtn" style="width:auto;"><span id="iconCheck"></span>Mark all as read</button>
+        </div>
+        <div id="alertsList"></div>
+        <div id="alertsEmpty" class="empty-state hidden">No alerts to show.</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/icons.js"></script>
+<script src="js/api.js"></script>
+<script src="js/alerts.js"></script>
+</body>
+</html>
