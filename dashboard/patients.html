@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VitalTrack - Patients</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ===================== Sidebar ===================== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark" id="brandMark"></div>
+      <div class="brand-text">
+        <div class="brand-name"><span class="accent-green">VITAL</span>-TRACK</div>
+        <div class="brand-tag">Health Monitoring System</div>
+      </div>
+    </div>
+
+    <ul class="nav-group">
+      <li><a class="nav-link" href="dashboard.html"><span></span>Dashboard</a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Real-time Monitor<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>History / Records<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Reports<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link" href="alerts.html"><span></span>Alerts<span class="badge-count hidden" id="sidebarAlertBadge">0</span></a></li>
+      <li><a class="nav-link active" href="patients.html"><span></span>Patients</a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Settings<span class="soon-tag">Soon</span></a></li>
+      <li><a class="nav-link disabled" href="#" onclick="return false;"><span></span>Profile<span class="soon-tag">Soon</span></a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <a class="logout-link" href="#" id="logoutBtn"><span></span>Logout</a>
+    </div>
+  </aside>
+
+  <!-- ===================== Main ===================== -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="hamburger"></span>
+        <div>
+          <div class="page-title">Patients</div>
+          <div class="page-subtitle">Manage patient records and ESP32 device assignments</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-stat"><span id="iconCalendar"></span><span id="topDate">--</span></div>
+        <div class="topbar-stat"><span id="iconClock"></span><span id="topClock">--:--:--</span></div>
+        <div class="admin-chip">
+          <div class="avatar" id="adminAvatar">A</div>
+          <span class="name" id="adminName">Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <div class="card-head">
+          <div class="filter-tabs" id="filterTabs">
+            <span class="filter-tab active" data-status="">All</span>
+            <span class="filter-tab" data-status="active">Active</span>
+            <span class="filter-tab" data-status="discharged">Discharged</span>
+          </div>
+          <button class="btn" id="addPatientBtn" style="width:auto;"><span id="iconPlus"></span>Add Patient</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Age / Gender</th>
+                <th>Ward</th>
+                <th>Status</th>
+                <th>Device</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="patientsTableBody"></tbody>
+          </table>
+        </div>
+        <div id="patientsEmpty" class="empty-state hidden">No patients yet. Add your first patient to get started.</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ===================== Add / Edit Patient Modal ===================== -->
+<div class="modal-backdrop hidden" id="patientModalBackdrop">
+  <div class="modal">
+    <h3 id="patientModalTitle">Add Patient</h3>
+    <form id="patientForm">
+      <input type="hidden" id="patientId" />
+      <div class="form-row">
+        <label for="pName">Full name</label>
+        <input type="text" id="pName" required />
+      </div>
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label for="pAge">Age</label>
+          <input type="number" id="pAge" min="0" max="130" />
+        </div>
+        <div class="form-row">
+          <label for="pGender">Gender</label>
+          <select id="pGender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="pWard">Ward</label>
+        <input type="text" id="pWard" placeholder="e.g. General Ward" />
+      </div>
+      <div class="form-row">
+        <label for="pStatus">Status</label>
+        <select id="pStatus">
+          <option value="active">Active</option>
+          <option value="discharged">Discharged</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" id="patientCancelBtn">Cancel</button>
+        <button type="submit" class="btn" id="patientSaveBtn">Save Patient</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== Device Modal ===================== -->
+<div class="modal-backdrop hidden" id="deviceModalBackdrop">
+  <div class="modal">
+    <h3>Device Assignment</h3>
+    <div id="deviceModalBody"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="deviceCancelBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Delete Confirm Modal ===================== -->
+<div class="modal-backdrop hidden" id="deleteModalBackdrop">
+  <div class="modal">
+    <h3>Delete patient?</h3>
+    <p style="color:var(--text-secondary);font-size:13.5px;">This removes the patient along with their stored readings and alerts. This can't be undone.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="deleteCancelBtn">Cancel</button>
+      <button type="button" class="btn btn-danger" id="deleteConfirmBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/icons.js"></script>
+<script src="js/api.js"></script>
+<script src="js/patients.js"></script>
+</body>
+</html>
