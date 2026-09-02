@@ -5,10 +5,9 @@ BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 
 class Config:
-    # Secret used to sign JWT access tokens. Override in production via env var.
+    # Secret used to sign JWT access tokens.
     SECRET_KEY = os.environ.get("VITALTRACK_SECRET_KEY", "dev-secret-change-me")
 
-    # SQLite database lives in /database so it matches the README's project layout
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(BASE_DIR, "database", "vitaltrack.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
