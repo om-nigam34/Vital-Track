@@ -9,7 +9,7 @@ def utcnow():
 
 
 class User(db.Model):
-    """A dashboard operator (doctor / nurse / admin) who can log in."""
+    # A dashboard operator, who can log in.
 
     __tablename__ = "users"
 
@@ -39,12 +39,12 @@ class Patient(db.Model):
     __tablename__ = "patients"
 
     id = db.Column(db.Integer, primary_key=True)
-    patient_code = db.Column(db.String(20), unique=True, nullable=False)  # e.g. VT-1001
+    patient_code = db.Column(db.String(20), unique=True, nullable=False)  # e.g.- VT-1001
     name = db.Column(db.String(128), nullable=False)
     age = db.Column(db.Integer)
     gender = db.Column(db.String(16))
     ward = db.Column(db.String(64))
-    status = db.Column(db.String(16), default="active")  # active | discharged
+    status = db.Column(db.String(16), default="active")  # active or discharged
     created_at = db.Column(db.DateTime, default=utcnow)
 
     devices = db.relationship("Device", backref="patient", lazy=True)
@@ -80,11 +80,11 @@ class Device(db.Model):
     __tablename__ = "devices"
 
     id = db.Column(db.Integer, primary_key=True)
-    device_uid = db.Column(db.String(64), unique=True, nullable=False)  # ESP32 chip id / MAC
+    device_uid = db.Column(db.String(64), unique=True, nullable=False)  # ESP32 chip id
     patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"), nullable=True)
     api_key = db.Column(db.String(64), unique=True, nullable=False)
     firmware_version = db.Column(db.String(16), default="v1.0.0")
-    wifi_signal = db.Column(db.Integer, default=0)  # dBm-derived percentage 0-100
+    wifi_signal = db.Column(db.Integer, default=0)  # dBm- derived percentage 0-100
     battery_level = db.Column(db.Integer, default=100)
     last_seen = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=utcnow)
@@ -120,7 +120,7 @@ class VitalReading(db.Model):
     heart_rate = db.Column(db.Float)      # BPM, from MAX30100
     spo2 = db.Column(db.Float)            # %, from MAX30100
     temperature = db.Column(db.Float)     # °C, from DS18B20
-    ecg_status = db.Column(db.String(32), default="Normal")  # derived label, see utils/thresholds.py
+    ecg_status = db.Column(db.String(32), default="Normal")  # derived label
 
     recorded_at = db.Column(db.DateTime, default=utcnow, index=True)
 
