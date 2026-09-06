@@ -1,10 +1,3 @@
-"""Dumps the current SQLite schema to ../database/schema.sql.
-Handy after changing a model in models.py - run once so the .sql file in
-version control stays in sync with what SQLAlchemy actually creates.
-
-Usage (from backend/):  python export_schema.py
-"""
-
 import os
 import sqlite3
 
