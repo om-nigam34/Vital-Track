@@ -10,6 +10,10 @@ database/vitaltrack.db
 # Secrets generated at seed time
 firmware/device_key.txt
 
+# Real WiFi + device credentials for the ESP32 - copy secrets.h.example to
+# secrets.h and fill in real values there. secrets.h itself must never be committed
+firmware/secrets.h
+
 # OS / editor
 .DS_Store
 .vscode/
