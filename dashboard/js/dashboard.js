@@ -132,13 +132,28 @@ function renderSidebarPatientCard(patient) {
 // charts
 
 function initCharts() {
-  state.charts.hrSpark = makeSparkline(document.getElementById("hrSpark"), Array(SPARK_POINTS).fill(null), "#f0546a");
-  state.charts.spo2Spark = makeSparkline(document.getElementById("spo2Spark"), Array(SPARK_POINTS).fill(null), "#2e9bff");
-  state.charts.tempSpark = makeSparkline(document.getElementById("tempSpark"), Array(SPARK_POINTS).fill(null), "#34d399");
-  state.charts.trend = makeTrendChart(document.getElementById("trendCanvas"), [], [], [], []);
+  // Chart.js is loaded from a local vendored file (dashboard/js/vendor/chart.umd.js) so
+  // this should always be defined - but if it's ever missing for any reason, skip the
+  // charts instead of throwing and taking the rest of the page down with it.
+  if (typeof Chart === "undefined") {
+    console.warn("Chart.js did not load - sparklines and the trend chart will be skipped, but the rest of the dashboard will still work.");
+  } else {
+    try {
+      state.charts.hrSpark = makeSparkline(document.getElementById("hrSpark"), Array(SPARK_POINTS).fill(null), "#f0546a");
+      state.charts.spo2Spark = makeSparkline(document.getElementById("spo2Spark"), Array(SPARK_POINTS).fill(null), "#2e9bff");
+      state.charts.tempSpark = makeSparkline(document.getElementById("tempSpark"), Array(SPARK_POINTS).fill(null), "#34d399");
+      state.charts.trend = makeTrendChart(document.getElementById("trendCanvas"), [], [], [], []);
+    } catch (err) {
+      console.warn("Chart setup failed, continuing without it:", err);
+    }
+  }
 
-  state.ecg = new ECGMonitor(document.getElementById("ecgCanvas"), { color: "#34d399" });
-  state.ecg.start();
+  try {
+    state.ecg = new ECGMonitor(document.getElementById("ecgCanvas"), { color: "#34d399" });
+    state.ecg.start();
+  } catch (err) {
+    console.warn("ECG canvas setup failed, continuing without it:", err);
+  }
 }
 
 // render pieces
@@ -301,7 +316,7 @@ async function refreshAll(resetCharts = false) {
     const historyData = await api(`/api/vitals/history?patient_id=${state.patientId}&minutes=${rangeMinutes}`);
     const readings = historyData.readings;
 
-    if (resetCharts || readings.length) {
+    if (state.charts.trend && (resetCharts || readings.length)) {
       const trimmed = downsample(readings, 120);
       const labels = trimmed.map((r) => new Date(r.recorded_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
       updateTrendChart(
@@ -313,9 +328,9 @@ async function refreshAll(resetCharts = false) {
       );
 
       const last = readings.slice(-SPARK_POINTS);
-      updateSparkline(state.charts.hrSpark, last.map((r) => r.heart_rate));
-      updateSparkline(state.charts.spo2Spark, last.map((r) => r.spo2));
-      updateSparkline(state.charts.tempSpark, last.map((r) => r.temperature));
+      if (state.charts.hrSpark) updateSparkline(state.charts.hrSpark, last.map((r) => r.heart_rate));
+      if (state.charts.spo2Spark) updateSparkline(state.charts.spo2Spark, last.map((r) => r.spo2));
+      if (state.charts.tempSpark) updateSparkline(state.charts.tempSpark, last.map((r) => r.temperature));
     }
   } catch (err) {
     console.error(err);
@@ -350,11 +365,11 @@ function bindEvents() {
 // init
 
 (async function init() {
-  paintIcons();
-  paintUser();
-  startClock();
-  initCharts();
-  bindEvents();
+  try { paintIcons(); } catch (err) { console.warn("paintIcons failed:", err); }
+  try { paintUser(); } catch (err) { console.warn("paintUser failed:", err); }
+  try { startClock(); } catch (err) { console.warn("startClock failed:", err); }
+  try { initCharts(); } catch (err) { console.warn("initCharts failed:", err); }
+  try { bindEvents(); } catch (err) { console.warn("bindEvents failed:", err); }
 
   try {
     await loadPatients();
