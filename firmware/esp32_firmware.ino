@@ -1,6 +1,6 @@
 /*
   VitalTrack ESP32 firmware (reference sketch)
-  ---------------------------------------------
+
   Reads heart rate + SpO2 from a MAX30100 and temperature from a DS18B20,
   then POSTs a JSON reading to the Flask backend's /api/vitals/ingest route
   every few seconds - the same endpoint firmware/esp32_simulator.py talks to.
@@ -30,7 +30,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-// ---- Configure before flashing ----
+// Configure before flashing
 const char* WIFI_SSID     = "YOUR_WIFI_SSID";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
 const char* SERVER_URL    = "http://192.168.1.20:5000/api/vitals/ingest";
