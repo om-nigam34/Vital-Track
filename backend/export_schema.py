@@ -1,30 +1,32 @@
+# """Writes the current table definitions to ../database/schema.sql.
+
 import os
 import sqlite3
 
-from app import DASHBOARD_DIR  # noqa: F401 (import triggers path setup consistency)
-from config import Config
+from config import DATABASE_PATH
+from app import PROJECT_ROOT
 
-DB_PATH = Config.SQLALCHEMY_DATABASE_URI.replace("sqlite:///", "")
-OUT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "database", "schema.sql")
+OUT_PATH = os.path.join(PROJECT_ROOT, "database", "schema.sql")
 
 
 def main():
-    if not os.path.exists(DB_PATH):
-        raise SystemExit(f"No database found at {DB_PATH} - run app.py or seed.py first to create it.")
+    if not os.path.exists(DATABASE_PATH):
+        raise SystemExit(f"No database at {DATABASE_PATH} - run `python app.py` or `python seed.py` first.")
 
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name;")
-    rows = cur.fetchall()
+    conn = sqlite3.connect(DATABASE_PATH)
+    rows = conn.execute(
+        "SELECT sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%' "
+        "ORDER BY CASE type WHEN 'table' THEN 0 ELSE 1 END, name"
+    ).fetchall()
     conn.close()
 
-    with open(OUT_PATH, "w") as f:
-        f.write("-- VitalTrack SQLite schema (auto-exported from models.py via SQLAlchemy create_all())\n")
-        f.write("-- Regenerate any time with: python export_schema.py\n\n")
+    with open(OUT_PATH, "w", encoding="utf-8", newline="\n") as f:
+        f.write("-- VitalTrack SQLite schema (exported from the live database)\n")
+        f.write("-- Regenerate with: python backend/export_schema.py\n\n")
         for (sql,) in rows:
-            f.write(sql + ";\n\n")
+            f.write(sql.strip() + ";\n\n")
 
-    print(f"Wrote schema for {len(rows)} tables to {OUT_PATH}")
+    print(f"Wrote {len(rows)} definitions to {OUT_PATH}")
 
 
 if __name__ == "__main__":
