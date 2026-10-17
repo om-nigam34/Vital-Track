@@ -2,15 +2,19 @@ import datetime
 from functools import wraps
 
 import jwt
-from flask import request, jsonify, current_app
+from flask import current_app, g, request
 
+from extensions import db
 from models import User
+from utils.http import error, json_body
 
 
 def generate_token(user):
     now = datetime.datetime.now(datetime.timezone.utc)
     payload = {
-        "sub": user.id,
+        # The JWT standard says "sub" must be a string. Newer PyJWT versions reject a
+        # number here, which is what caused "login works, then every page logs you out".
+        "sub": str(user.id),
         "username": user.username,
         "role": user.role,
         "iat": now,
@@ -24,6 +28,7 @@ def decode_token(token):
         token,
         current_app.config["SECRET_KEY"],
         algorithms=[current_app.config["JWT_ALGORITHM"]],
+        options={"require": ["exp", "sub"]},
     )
 
 
@@ -35,40 +40,41 @@ def get_bearer_token():
 
 
 def login_required(fn):
-    """Protects dashboard API routes - requires a valid JWT from /api/auth/login."""
+    # Protects dashboard API routes - needs a valid token from /api/auth/login.
 
     @wraps(fn)
     def wrapper(*args, **kwargs):
         token = get_bearer_token()
         if not token:
-            return jsonify({"error": "Missing authorization token"}), 401
+            return error("Missing authorization token", 401)
         try:
             payload = decode_token(token)
+            user_id = int(payload["sub"])
         except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Session expired, please log in again"}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({"error": "Invalid authorization token"}), 401
+            return error("Session expired, please log in again", 401)
+        except (jwt.InvalidTokenError, ValueError, KeyError):
+            return error("Invalid authorization token", 401)
 
-        user = User.query.get(payload.get("sub"))
+        user = db.session.get(User, user_id)
         if not user:
-            return jsonify({"error": "User no longer exists"}), 401
+            return error("User no longer exists", 401)
 
-        request.current_user = user
+        g.current_user = user
         return fn(*args, **kwargs)
 
     return wrapper
 
 
 def device_key_required(fn):
-    """Protects the ESP32 ingestion endpoint using a per-device API key instead of a JWT,
-    since a microcontroller cannot easily hold a short-lived user session."""
+    # Protects the ESP32 ingestion endpoint with a per-device API key instead of a login
+    # token (a microcontroller cannot hold a short-lived user session).
 
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        api_key = request.headers.get("X-Device-Key") or (request.json or {}).get("api_key")
-        if not api_key:
-            return jsonify({"error": "Missing device API key"}), 401
-        request.device_api_key = api_key
+        api_key = request.headers.get("X-Device-Key") or json_body().get("api_key")
+        if not api_key or not isinstance(api_key, str):
+            return error("Missing device API key", 401)
+        g.device_api_key = api_key
         return fn(*args, **kwargs)
 
     return wrapper
