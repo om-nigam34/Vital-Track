@@ -1,4 +1,4 @@
-# """Writes the current table definitions to ../database/schema.sql.
+# Writes the current table definitions to ../database/schema.sql.
 
 import os
 import sqlite3
