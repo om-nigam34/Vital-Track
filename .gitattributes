@@ -1,0 +1,5 @@
+# Same line endings on Windows and Mac/Linux
+* text=auto
+
+# Chart.js is a third-party library: keep it out of GitHub's language statistics
+dashboard/js/vendor/** linguist-vendored

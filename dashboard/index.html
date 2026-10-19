@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>VitalTrack - Sign In</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%2334d399'/%3E%3Cpath d='M20 12h-3l-2 6-4-12-2 6H4' fill='none' stroke='%230a0d16' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -18,16 +19,18 @@
       </div>
     </div>
 
+    <div id="authNotice" class="auth-notice hidden" role="status"></div>
+
     <div id="loginPane">
       <div class="auth-title">Welcome back</div>
       <div class="auth-sub">Sign in to monitor your patients</div>
 
-      <div id="loginError" class="auth-error hidden"></div>
+      <div id="loginError" class="auth-error hidden" role="alert"></div>
 
-      <form id="loginForm">
+      <form id="loginForm" novalidate>
         <div class="form-row">
           <label for="loginUsername">Username</label>
-          <input type="text" id="loginUsername" autocomplete="username" required />
+          <input type="text" id="loginUsername" autocomplete="username" autofocus required />
         </div>
         <div class="form-row">
           <label for="loginPassword">Password</label>
@@ -36,7 +39,7 @@
         <button type="submit" class="btn" id="loginBtn">Sign In</button>
       </form>
 
-      <div class="auth-switch">
+      <div class="auth-switch" id="registerLinkRow">
         New here? <button type="button" id="showRegister">Create an account</button>
       </div>
 
@@ -47,20 +50,22 @@
       <div class="auth-title">Create your account</div>
       <div class="auth-sub">Set up a login for the dashboard</div>
 
-      <div id="registerError" class="auth-error hidden"></div>
+      <div id="registerError" class="auth-error hidden" role="alert"></div>
 
-      <form id="registerForm">
+      <form id="registerForm" novalidate>
         <div class="form-row">
           <label for="regName">Full name</label>
-          <input type="text" id="regName" required />
+          <input type="text" id="regName" autocomplete="name" maxlength="128" required />
         </div>
         <div class="form-row">
           <label for="regUsername">Username</label>
-          <input type="text" id="regUsername" required />
+          <input type="text" id="regUsername" autocomplete="username" maxlength="64" required />
+          <div class="field-hint">3-64 characters: letters, numbers, dot, dash or underscore</div>
         </div>
         <div class="form-row">
           <label for="regPassword">Password</label>
-          <input type="password" id="regPassword" minlength="6" required />
+          <input type="password" id="regPassword" autocomplete="new-password" minlength="8" maxlength="128" required />
+          <div class="field-hint">At least 8 characters</div>
         </div>
         <button type="submit" class="btn" id="registerBtn">Create Account</button>
       </form>

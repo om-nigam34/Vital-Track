@@ -14,7 +14,8 @@ class ECGMonitor {
     this.pxPerSecond = 90;
     this.buffer = []; // {x, y} scrolling buffer in canvas space
     this._resize();
-    window.addEventListener("resize", () => this._resize());
+    this._onResize = () => this._resize();
+    window.addEventListener("resize", this._onResize);
   }
 
   _resize() {
@@ -66,17 +67,26 @@ class ECGMonitor {
     }
   }
 
-  _tick() {
+  _tick(now) {
     if (!this.running) return;
-    const dt = 1 / 60;
+
+    // Use the real time between frames. Assuming a fixed 1/60 s made the trace run
+    // 2-3x too fast on 120/144 Hz screens. Capped so a hidden tab does not cause a jump.
+    const nowSec = (now || performance.now()) / 1000;
+    const dt = this._last ? Math.min(nowSec - this._last, 0.1) : 1 / 60;
+    this._last = nowSec;
     this.t += dt;
 
     const cycleSeconds = Math.max(60 / this.heartRate, 0.28);
     const frac = (this.t % cycleSeconds) / cycleSeconds;
     const amplitude = ECGMonitor._cycleShape(frac);
 
+    if (!this.width || !this.height) {
+      this._raf = requestAnimationFrame((ts) => this._tick(ts));
+      return;
+    }
     const midY = this.height / 2;
-    const y = midY - amplitude * (this.height * 0.36);
+    const y = midY - amplitude * (this.height * 0.27);   // tallest spike (1.6) stays inside the panel
     const x = this.width; // new sample enters from the right edge
 
     this.buffer.push({ x, y });
@@ -100,17 +110,23 @@ class ECGMonitor {
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    this._raf = requestAnimationFrame(() => this._tick());
+    this._raf = requestAnimationFrame((ts) => this._tick(ts));
   }
 
   start() {
     if (this.running) return;
     this.running = true;
-    this._raf = requestAnimationFrame(() => this._tick());
+    this._last = null;
+    this._raf = requestAnimationFrame((ts) => this._tick(ts));
   }
 
   stop() {
     this.running = false;
     if (this._raf) cancelAnimationFrame(this._raf);
+  }
+
+  destroy() {
+    this.stop();
+    window.removeEventListener("resize", this._onResize);
   }
 }

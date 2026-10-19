@@ -1,83 +1,115 @@
 # VitalTrack
 
-VitalTrack is an IoT-based patient vitals monitoring system that captures real-time health data — such as heart rate, SpO2, and temperature — using a microcontroller connected to multiple sensors. The data is sent to a backend, stored in a database, and visualized through a dashboard, enabling continuous, remote tracking of a patient's vital signs.
+A patient vitals monitor. An ESP32 reads heart rate, SpO2 and body temperature, sends them over Wi-Fi to a Flask server, which stores them in SQLite and shows them on a live dashboard with alerts for abnormal readings.
 
-## Features
+## What it does
 
-- Real-time capture of vital signs -> heart rate, SpO2, body temperature
-- Wireless data transmission from microcontroller to backend server
-- Persistent storage of historical vitals data
-- Live web dashboard for continuous monitoring
-- Alert/threshold system for abnormal readings
+- Login with username and password
+- Live dashboard: heart rate, SpO2, temperature, trend charts, ECG-style waveform
+- Alerts when a value leaves its normal range (each alert is raised once per minute, not on every reading)
+- Add, edit and delete patients; register ESP32 devices and assign them to patients
+- A simulator, so everything works before the hardware is connected
 
-## Tech Stack
+## Tech stack
 
-| Layer | Technology |
+| Part | Technology |
 |---|---|
 | Microcontroller | ESP32 |
-| Sensors | MAX30100 for HR/SpO2, DS18B20 for temperature |
-| Backend | Flask |
+| Sensors | MAX30100 (heart rate, SpO2), DS18B20 (temperature) |
+| Backend | Python, Flask, SQLAlchemy, PyJWT |
 | Database | SQLite |
-| Frontend/Dashboard | HTML/CSS/JS, |
-| Communication | Wi-Fi / HTTP |
-
-## System Architecture
+| Dashboard | HTML, CSS, JavaScript (Chart.js, included in the repo) |
+| Communication | Wi-Fi, HTTP + JSON |
 
 ```
-[Sensors] --> [ESP32] --(Wi-Fi/HTTP)--> [Flask Backend] --> [SQLite DB]
-                                                |
-                                                v
-                                        [Web Dashboard]
+[Sensors] -> [ESP32] --Wi-Fi/HTTP--> [Flask server] -> [SQLite]
+                                           |
+                                           v
+                                    [Web dashboard]
 ```
 
-## Project Structure
+## Run it
+
+You need Python 3.10 or newer.
 
 ```
-VitalTrack/
-├── firmware/           # ESP32 microcontroller code
-├── backend/             # Flask server, API routes
-├── database/             # SQLite schema/models
-├── dashboard/            # Frontend dashboard files
-├── requirements.txt
-└── README.md
+git clone https://github.com/om-nigam34/Vital-Track.git
+cd Vital-Track
+pip install -r requirements.txt
+
+cd backend
+python seed.py      # once: creates the demo login, patient and device
+python app.py       # starts the server
 ```
 
-## Getting Started
+Open http://localhost:5000 and sign in with `admin` / `admin123`.
 
-### Prerequisites
-- Python
-- ESP32 board + Arduino IDE / PlatformIO
-- Required sensors
+To see live data without any hardware, open a second terminal:
 
-### Installation
+```
+cd firmware
+python esp32_simulator.py --scenario mixed
+```
 
-1. Clone the repository
-   ```bash
-   git clone https://github.com/om-nigam34/VitalTrack.git
-   cd VitalTrack
-   ```
+`mixed` goes through normal, fever, fast heart rate and low SpO2, so alerts show up on their own.
+Other scenarios: `normal`, `fever`, `tachycardia`, `low_spo2`.
 
-2. Install backend dependencies
-   ```bash
-   pip install -r requirements.txt
-   ```
+Stop either program with `Ctrl+C`.
 
-3. Flash the firmware to your ESP32 (update Wi-Fi credentials and server endpoint in the firmware code first)
+## Using the real ESP32
 
-4. Run the backend server
-   ```bash
-   python app.py
-   ```
+1. Wire the sensors as described at the top of `firmware/esp32_firmware.ino`.
+2. Copy `firmware/secrets.h.example` to `firmware/secrets.h` and fill in your Wi-Fi name, password, device API key, and your computer's address. `secrets.h` is git-ignored, so it stays off GitHub.
+3. When the server starts it prints `ESP32 server address: http://192.168.x.x:5000`. Use that address (plus `/api/vitals/ingest`) as `SERVER_URL`. Do not use `localhost`.
+4. The computer and the ESP32 must be on the same Wi-Fi. If nothing arrives, check that Windows Firewall allows Python on private networks.
+5. Flash it and open the Serial Monitor. It prints `Sent OK` for each reading, and tells you if the finger is missing, the key is wrong or the server cannot be reached.
 
-5. Open the dashboard in your browser at `http://localhost:port`
+## Project layout
 
-## How It Works
+```
+backend/     Flask server: app.py, models.py, routes/, utils/, seed.py, tests/
+dashboard/   The website: HTML pages, css/, js/ (js/vendor has Chart.js)
+database/    schema.sql (the SQLite file is created when you run the app)
+firmware/    esp32_firmware.ino, secrets.h.example, esp32_simulator.py
+```
 
-1. Sensors connected to the ESP32 continuously read vital sign data.
-2. The ESP32 sends this data over Wi-Fi to the Flask backend via HTTP requests.
-3. The backend validates and stores incoming data in the SQLite database.
-4. The dashboard fetches and displays this data in real time, allowing remote monitoring of the patient's condition.
+## Settings
 
+Everything has a working default. To change something, set an environment variable before `python app.py`.
+
+| Variable | Effect |
+|---|---|
+| `VITALTRACK_DEBUG=1` | Auto-restart when you edit Python files, and detailed error pages. Development only. |
+| `VITALTRACK_PORT=8000` | Use another port |
+| `VITALTRACK_ALLOW_REGISTRATION=0` | Hide "Create an account" and block new sign-ups |
+| `VITALTRACK_SECRET_KEY=...` | Your own login-token key. If unset, one is generated and saved in `database/.secret_key`. |
+
+PowerShell example: `$env:VITALTRACK_DEBUG = "1"; python app.py`
+
+Normal ranges, the alert cooldown and the sensor sanity limits are in `backend/config.py`.
+
+## Tests
+
+```
+cd backend
+python -m unittest discover -s tests -v
+```
+
+The tests use a temporary database, so your data is not touched.
+
+## Troubleshooting
+
+- **Dashboard shows `--` and "Waiting for data"**: nothing is sending readings. Start the simulator, and check that its output says `OK`.
+- **Simulator says "key is wrong"**: run `python seed.py` again, or pass the key with `--key`.
+- **Simulator says "device is not assigned"**: assign the device to a patient on the Patients page.
+- **Signed out right after logging in**: run `pip install -r requirements.txt` again, then restart the server.
+- **Forgot the demo password**: delete `database/vitaltrack.db` and run `python seed.py` (this also deletes your patients and readings).
+
+## Notes
+
+- The ECG waveform is an illustration: the MAX30100 and DS18B20 cannot measure ECG, so the line is drawn from the live heart rate. A real ECG needs a sensor such as the AD8232.
+- "Pause Live View" only pauses the page, it does not change the device.
+- This is a college project, not a medical device.
 
 ## Author
 
