@@ -1,21 +1,22 @@
-/* Small fetch wrapper shared by every page.
-   Same-origin (Flask serves both the API and these static files), so no
-   base URL or CORS handling is needed - just call api('/api/...'). */
+/* Shared by every page: login session + a small wrapper around fetch().
+   Flask serves both the API and these files from the same address, so there is
+   no base URL and no CORS - just call api("/api/...").                          */
 
 const TOKEN_KEY = "vt_token";
 const USER_KEY = "vt_user";
 const PATIENT_KEY = "vt_selected_patient";
 
+// Pages a login may send you back to (anything else goes to the dashboard)
+const PAGES = ["dashboard.html", "patients.html", "alerts.html"];
+
+/* ------------------------------ session ------------------------------ */
+
 function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
 }
 
 function getStoredUser() {
-  try {
-    return JSON.parse(localStorage.getItem(USER_KEY) || "null");
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(localStorage.getItem(USER_KEY) || "null"); } catch { return null; }
 }
 
 function setSession(token, user) {
@@ -24,14 +25,61 @@ function setSession(token, user) {
 }
 
 function clearSession() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+  } catch { /* storage unavailable */ }
 }
 
-function requireAuth() {
-  if (!getToken()) {
-    window.location.href = "index.html";
+/** The token's expiry time in ms (read from the token itself), or null if unreadable. */
+function tokenExpiry(token) {
+  try {
+    const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(part));
+    return payload.exp ? payload.exp * 1000 : null;
+  } catch {
+    return null;
   }
+}
+
+function hasValidSession() {
+  const token = getToken();
+  if (!token) return false;
+  const exp = tokenExpiry(token);
+  return exp === null || exp > Date.now();
+}
+
+function currentPage() {
+  return window.location.pathname.split("/").pop() || "index.html";
+}
+
+let redirecting = false;
+function goToLogin({ expired = false } = {}) {
+  clearSession();
+  if (currentPage() === "index.html") return;   // already on the login page: nothing to redirect
+  if (redirecting) return;
+  redirecting = true;
+  const params = new URLSearchParams();
+  const page = currentPage();
+  if (PAGES.includes(page)) params.set("next", page);
+  if (expired) params.set("expired", "1");
+  const query = params.toString();
+  window.location.replace("index.html" + (query ? "?" + query : ""));
+}
+
+/** Call at the top of every page except the login page. */
+function requireAuth() {
+  if (!hasValidSession()) {
+    goToLogin({ expired: !!getToken() });
+    return false;
+  }
+  return true;
+}
+
+/** Where to go after logging in: the page you were on, if it is one of ours. */
+function nextPageAfterLogin() {
+  const next = new URLSearchParams(window.location.search).get("next");
+  return PAGES.includes(next) ? next : "dashboard.html";
 }
 
 function getSelectedPatientId() {
@@ -43,16 +91,27 @@ function setSelectedPatientId(id) {
   localStorage.setItem(PATIENT_KEY, String(id));
 }
 
+/* ------------------------------ requests ------------------------------ */
+
+class ApiError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 /**
- * api(path, { method, body })
- * Adds the Authorization header, JSON-encodes the body, and throws a
- * readable Error on non-2xx responses (with the server's error message
- * when available) so callers can just try/catch.
+ * api(path, { method, body, auth })
+ *  - adds the login token and JSON-encodes the body
+ *  - throws ApiError with the server's message on any failure
+ *  - auth:false is for login/register, where a 401 just means "wrong password"
+ *    (it must NOT log you out or reload the page)
  */
-async function api(path, { method = "GET", body } = {}) {
+async function api(path, { method = "GET", body, auth = true } = {}) {
   const headers = { "Content-Type": "application/json" };
   const token = getToken();
-  if (token) headers["Authorization"] = "Bearer " + token;
+  if (auth && token) headers["Authorization"] = "Bearer " + token;
 
   let res;
   try {
@@ -60,51 +119,59 @@ async function api(path, { method = "GET", body } = {}) {
       method,
       headers,
       body: body !== undefined ? JSON.stringify(body) : undefined,
+      cache: "no-store",
     });
-  } catch (networkErr) {
-    throw new Error("Could not reach the VitalTrack server. Is the Flask backend running?");
-  }
-
-  if (res.status === 401) {
-    clearSession();
-    window.location.href = "index.html";
-    throw new Error("Session expired");
+  } catch {
+    throw new ApiError("Cannot reach the VitalTrack server. Is it running?", 0);
   }
 
   let data = null;
   const text = await res.text();
   if (text) {
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = null;
-    }
+    try { data = JSON.parse(text); } catch { data = null; }
+  }
+
+  if (res.status === 401 && auth) {
+    goToLogin({ expired: true });
+    throw new ApiError("Session expired. Please sign in again.", 401);
   }
 
   if (!res.ok) {
-    const message = (data && data.error) || `Request failed (${res.status})`;
-    throw new Error(message);
+    throw new ApiError((data && data.error) || `Request failed (${res.status})`, res.status);
   }
-
   return data;
 }
 
+/* ------------------------------ small helpers ------------------------------ */
+
+/** Escape text before putting it inside innerHTML (stops names like <img onerror=...> from running). */
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+}
+
+let toastTimer = null;
 function showToast(message, type = "success") {
   const existing = document.querySelector(".toast");
   if (existing) existing.remove();
+  clearTimeout(toastTimer);
 
   const el = document.createElement("div");
   el.className = `toast ${type}`;
+  el.setAttribute("role", type === "error" ? "alert" : "status");
   el.textContent = message;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 3500);
+  toastTimer = setTimeout(() => el.remove(), 4000);
 }
 
 function timeAgo(isoString) {
   if (!isoString) return "";
   const diffMs = Date.now() - new Date(isoString).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return "just now";
+  const secs = Math.floor(diffMs / 1000);
+  if (secs < 10) return "just now";
+  if (secs < 60) return `${secs}s ago`;
+  const mins = Math.floor(secs / 60);
   if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
@@ -114,4 +181,11 @@ function timeAgo(isoString) {
 function formatClockTime(isoString) {
   if (!isoString) return "--:--";
   return new Date(isoString).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function formatDateTime(isoString) {
+  if (!isoString) return "--";
+  return new Date(isoString).toLocaleString([], {
+    day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit",
+  });
 }

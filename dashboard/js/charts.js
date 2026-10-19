@@ -103,9 +103,11 @@ function makeTrendChart(canvas, labels, hr, spo2, temp) {
       },
       scales: {
         x: { grid: { color: gridColor }, ticks: { color: textColor, maxTicksLimit: 7 } },
-        yHr: { position: "left", min: 0, max: 140, grid: { color: gridColor }, ticks: { color: textColor } },
-        yPct: { display: false, min: 80, max: 100 },
-        yTemp: { display: false, min: 30, max: 42 },
+        // "suggested" limits give a stable default view but grow if a value goes beyond them
+        // (fixed limits used to cut off a heart rate above 140)
+        yHr: { position: "left", suggestedMin: 40, suggestedMax: 140, grid: { color: gridColor }, ticks: { color: textColor } },
+        yPct: { display: false, suggestedMin: 85, suggestedMax: 100 },
+        yTemp: { display: false, suggestedMin: 34, suggestedMax: 40 },
       },
     },
   });
@@ -117,4 +119,7 @@ function updateTrendChart(chart, labels, hr, spo2, temp) {
   chart.data.datasets[1].data = spo2;
   chart.data.datasets[2].data = temp;
   chart.update("none");
+}
+function destroyChart(chart) {
+  if (chart && typeof chart.destroy === "function") chart.destroy();
 }

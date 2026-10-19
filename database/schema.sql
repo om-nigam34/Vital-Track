@@ -1,5 +1,5 @@
--- VitalTrack SQLite schema (auto-exported from models.py via SQLAlchemy create_all())
--- Regenerate any time with: python backend/export_schema.py
+-- VitalTrack SQLite schema (exported from the live database)
+-- Regenerate with: python backend/export_schema.py
 
 CREATE TABLE alerts (
 	id INTEGER NOT NULL, 
@@ -68,3 +68,17 @@ CREATE TABLE vital_readings (
 	FOREIGN KEY(patient_id) REFERENCES patients (id), 
 	FOREIGN KEY(device_id) REFERENCES devices (id)
 );
+
+CREATE INDEX ix_alerts_created_at ON alerts (created_at);
+
+CREATE INDEX ix_alerts_patient_id ON alerts (patient_id);
+
+CREATE INDEX ix_alerts_patient_type_time ON alerts (patient_id, vital_type, created_at);
+
+CREATE UNIQUE INDEX ix_users_username ON users (username);
+
+CREATE INDEX ix_vital_readings_patient_id ON vital_readings (patient_id);
+
+CREATE INDEX ix_vital_readings_patient_time ON vital_readings (patient_id, recorded_at);
+
+CREATE INDEX ix_vital_readings_recorded_at ON vital_readings (recorded_at);
