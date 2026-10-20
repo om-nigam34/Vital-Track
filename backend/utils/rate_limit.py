@@ -1,11 +1,10 @@
-"""Tiny in-memory limiter used to slow down password guessing on /api/auth/login."""
+# Tiny in-memory limiter used to slow down password guessing on /api/auth/login.
 
 import threading
 import time
 
-
 class FailureLimiter:
-    """Allows `max_failures` failures per key inside a sliding `window` (seconds)."""
+    # Allows `max_failures` failures per key inside a sliding `window` (seconds).
 
     def __init__(self, max_failures, window):
         self.max_failures = max_failures
@@ -22,7 +21,8 @@ class FailureLimiter:
         return recent
 
     def retry_after(self, key):
-        """Seconds until this key may try again (0 if it is not locked)."""
+        # Seconds until this key may try again (0 if it is not locked).
+        
         now = time.monotonic()
         with self._lock:
             recent = self._recent(key, now)
