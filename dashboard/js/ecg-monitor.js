@@ -1,6 +1,4 @@
-/*
-  Synthetic ECG waveform.
-*/
+// Synthetic ECG waveform.
 
 class ECGMonitor {
   constructor(canvas, { color = "#34d399", bg = "transparent" } = {}) {
