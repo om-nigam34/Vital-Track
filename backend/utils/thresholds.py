@@ -1,14 +1,12 @@
-"""
-Threshold checking.
+# Threshold checking.
 
-For every new reading, compare heart rate / SpO2 / temperature with the normal
-ranges in Config.THRESHOLDS and create an Alert for anything outside them.
+# For every new reading, compare heart rate / SpO2 / temperature with the normal
+# ranges in Config.THRESHOLDS and create an Alert for anything outside them.
 
-The same abnormal value is usually reported again every few seconds, so an alert
-is only created again after ALERT_COOLDOWN_SECONDS (default 60 s) for the same
-patient and the same kind of problem. Without this, one fever would create
-hundreds of identical alerts.
-"""
+# The same abnormal value is usually reported again every few seconds, so an alert
+# is only created again after ALERT_COOLDOWN_SECONDS (default 60 s) for the same
+# patient and the same kind of problem. Without this, one fever would create
+# hundreds of identical alerts.
 
 from datetime import timedelta
 
@@ -37,7 +35,7 @@ def _format_value(value, unit):
 
 
 def find_breaches(reading, thresholds):
-    """List of out-of-range vitals for a reading (does not touch the database)."""
+    # List of out-of-range vitals for a reading (it does not touch the database).
     values = {
         "heart_rate": reading.heart_rate,
         "spo2": reading.spo2,
@@ -65,10 +63,9 @@ def find_breaches(reading, thresholds):
 
 
 def check_reading(reading):
-    """Set the reading's ecg_status and create alerts for new problems.
+    # Set the reading's ecg_status and create alerts for new problems.
+    # Returns the list of Alert objects that were added (not yet committed).
 
-    Returns the list of Alert objects that were added (not yet committed).
-    """
     thresholds = current_app.config["THRESHOLDS"]
     cooldown = timedelta(seconds=current_app.config["ALERT_COOLDOWN_SECONDS"])
     cutoff = utcnow() - cooldown
