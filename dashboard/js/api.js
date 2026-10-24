@@ -1,6 +1,6 @@
 /* Shared by every page: login session + a small wrapper around fetch().
    Flask serves both the API and these files from the same address, so there is
-   no base URL and no CORS - just call api("/api/...").                          */
+   no base URL and no CORS - just call api("/api/..."). */
 
 const TOKEN_KEY = "vt_token";
 const USER_KEY = "vt_user";
@@ -9,7 +9,7 @@ const PATIENT_KEY = "vt_selected_patient";
 // Pages a login may send you back to (anything else goes to the dashboard)
 const PAGES = ["dashboard.html", "patients.html", "alerts.html"];
 
-/* ------------------------------ session ------------------------------ */
+// session
 
 function getToken() {
   try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
@@ -28,10 +28,10 @@ function clearSession() {
   try {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
-  } catch { /* storage unavailable */ }
+  } catch {}  // storage unavailable
 }
 
-/** The token's expiry time in ms (read from the token itself), or null if unreadable. */
+// The token's expiry time in ms (read from the token itself), or null if unreadable.
 function tokenExpiry(token) {
   try {
     const part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
@@ -67,7 +67,7 @@ function goToLogin({ expired = false } = {}) {
   window.location.replace("index.html" + (query ? "?" + query : ""));
 }
 
-/** Call at the top of every page except the login page. */
+// Call at the top of every page except the login page.
 function requireAuth() {
   if (!hasValidSession()) {
     goToLogin({ expired: !!getToken() });
@@ -76,7 +76,7 @@ function requireAuth() {
   return true;
 }
 
-/** Where to go after logging in: the page you were on, if it is one of ours. */
+// Where to go after logging in: the page you were on, if it is one of ours.
 function nextPageAfterLogin() {
   const next = new URLSearchParams(window.location.search).get("next");
   return PAGES.includes(next) ? next : "dashboard.html";
@@ -91,7 +91,7 @@ function setSelectedPatientId(id) {
   localStorage.setItem(PATIENT_KEY, String(id));
 }
 
-/* ------------------------------ requests ------------------------------ */
+// requests 
 
 class ApiError extends Error {
   constructor(message, status) {
@@ -142,9 +142,10 @@ async function api(path, { method = "GET", body, auth = true } = {}) {
   return data;
 }
 
-/* ------------------------------ small helpers ------------------------------ */
+// small helpers
 
-/** Escape text before putting it inside innerHTML (stops names like <img onerror=...> from running). */
+// Escape text before putting it inside innerHTML (stops names like <img onerror=...> from running).
+
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => (
     { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
