@@ -1,20 +1,18 @@
-"""
-ESP32 simulator - sends fake but realistic readings, so you can build and demo the
-dashboard before the real hardware is wired up. It talks to the server exactly like
-the real firmware does.
+# ESP32 simulator - sends fake but realistic readings, so you can build and demo the
+# dashboard before the real hardware is wired up. It talks to the server exactly like
+# the real firmware does.
 
-Quick start (server must be running and `python seed.py` must have been run once):
-    cd firmware
-    python esp32_simulator.py
+# Quick start (server must be running and `python seed.py` must have been run once):
+#     cd firmware
+#     python esp32_simulator.py
 
-Options:
-    --scenario  normal | fever | tachycardia | low_spo2 | mixed   (default: normal)
-                "mixed" cycles through all of them so alerts appear on their own
-    --interval  seconds between readings (default: 3)
-    --count     stop after N readings (default: keep going until Ctrl+C)
-    --url       server address (default: http://localhost:5000)
-    --key       device API key (default: read from firmware/device_key.txt)
-"""
+# Options:
+#     --scenario  normal | fever | tachycardia | low_spo2 | mixed   (default: normal)
+#                 "mixed" cycles through all of them so alerts appear on their own
+#     --interval  seconds between readings (default: 3)
+#     --count     stop after N readings (default: keep going until Ctrl+C)
+#     --url       server address (default: http://localhost:5000)
+#     --key       device API key (default: read from firmware/device_key.txt)
 
 import argparse
 import os
