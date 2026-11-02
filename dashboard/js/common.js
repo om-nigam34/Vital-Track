@@ -1,5 +1,5 @@
 /* Shared page chrome: sidebar, top bar clock + user, logout, alert badge, modals.
-   Every page calls Chrome.init({ page: "dashboard" }) once when it loads.        */
+   Every page calls Chrome.init({ page: "dashboard" }) once when it loads. */
 
 const NAV_ITEMS = [
   { key: "dashboard", label: "Dashboard", href: "dashboard.html", icon: "grid" },
@@ -133,11 +133,10 @@ const Chrome = {
   },
 };
 
-/* ------------------------------ modals ------------------------------ */
+// modals
 
 const Modal = {
   _stack: [],
-
   open(backdrop) {
     if (!backdrop.dataset.bound) {
       backdrop.dataset.bound = "1";
