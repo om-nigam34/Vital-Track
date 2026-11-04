@@ -1,10 +1,5 @@
-"""
-API tests. Run from the backend/ folder:
-
-    python -m unittest discover -s tests -v
-
-Each test gets its own throwaway database, so your real data is never touched.
-"""
+# python -m unittest discover -s tests -v
+# Each test gets its own throwaway database, so your real data is never touched.
 
 import os
 import sys
