@@ -26,7 +26,7 @@
 
   const $ = (id) => document.getElementById(id);
 
-  /* ------------------------------ small helpers ------------------------------ */
+  // small helpers
 
   function statusFor(type, value) {
     if (value === null || value === undefined) return { label: "--", cls: "normal" };
@@ -61,7 +61,7 @@
     return `Normal: ${t.low} - ${t.high} ${t.unit}`;
   }
 
-  /* ------------------------------ one-time setup ------------------------------ */
+  // one-time setup
 
   function paintStaticIcons() {
     $("bannerIcon").innerHTML = icon("alertTriangle");
@@ -127,9 +127,9 @@
     }
   }
 
-  /* ------------------------------ patients ------------------------------ */
+  // patients
 
-  /** First visit: open the patient who actually has live data, not just the newest one added. */
+  // First visit: open the patient who actually has live data, not just the newest one added.
   function pickDefaultPatient(patients) {
     const active = patients.filter((p) => p.status === "active");
     const best =
@@ -175,7 +175,7 @@
     if (state.charts.trend) updateTrendChart(state.charts.trend, [], [], [], []);
   }
 
-  /* ------------------------------ rendering ------------------------------ */
+  // rendering
 
   function renderSidebarPatientCard(patient) {
     $("patientAvatar").textContent = initialsFor(patient?.name);
@@ -310,7 +310,7 @@
     updateSparkline(state.charts.temp, last.map((r) => r.temperature));
   }
 
-  /** The green "Live" light: tells you whether data is really arriving. */
+  // The green "Live" light: tells you whether data is really arriving.
   function updateLiveChip() {
     const chip = $("liveChip");
     const text = $("liveText");
@@ -338,7 +338,7 @@
     text.textContent = label;
   }
 
-  /* ------------------------------ data refresh ------------------------------ */
+  // data refresh 
 
   async function refresh() {
     if (!state.patientId) return;
@@ -408,7 +408,7 @@
     updateLiveChip();
   }
 
-  /* ------------------------------ events ------------------------------ */
+  // events
 
   function bindEvents() {
     $("patientSelect").addEventListener("change", () => {
@@ -439,8 +439,7 @@
     setInterval(updateLiveChip, 1000);
   }
 
-  /* ------------------------------ start ------------------------------ */
-
+  // start
   async function init() {
     Chrome.init({ page: "dashboard" });
     paintSidebarCard();
