@@ -1,4 +1,4 @@
--- VitalTrack SQLite schema (exported from the live database)
+-- VitalTrack SQLite schema --> (exported from the live database)
 -- Regenerate with: python backend/export_schema.py
 
 CREATE TABLE alerts (
