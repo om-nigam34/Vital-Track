@@ -15,7 +15,7 @@
     el.classList.toggle("hidden", !message);
   }
 
-  /* ------------------------------ data ------------------------------ */
+  // data
 
   async function loadPatients() {
     const qs = state.statusFilter ? `?status=${encodeURIComponent(state.statusFilter)}&include_latest=1` : "?include_latest=1";
@@ -29,7 +29,7 @@
     state.devices = data.devices;
   }
 
-  /* ------------------------------ table ------------------------------ */
+  // table
 
   function renderTable() {
     const body = $("patientsTableBody");
@@ -93,7 +93,7 @@
     loadPatients().catch((err) => showToast(err.message, "error"));
   });
 
-  /* ------------------------------ add / edit ------------------------------ */
+  // add / edit
 
   const patientModal = $("patientModalBackdrop");
 
@@ -157,7 +157,7 @@
     }
   });
 
-  /* ------------------------------ delete ------------------------------ */
+  // delete
 
   const deleteModal = $("deleteModalBackdrop");
 
@@ -194,7 +194,7 @@
     }
   });
 
-  /* ------------------------------ devices ------------------------------ */
+  // devices
 
   const deviceModal = $("deviceModalBackdrop");
 
@@ -311,7 +311,7 @@
   }
   $("deviceCancelBtn").addEventListener("click", closeDeviceModal);
 
-  /* ------------------------------ start ------------------------------ */
+  // start
 
   async function init() {
     Chrome.init({ page: "patients" });
