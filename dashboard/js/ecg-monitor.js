@@ -6,7 +6,7 @@ class ECGMonitor {
     this.bg = bg;
     this.heartRate = 75;
     this.running = false;
-    this.t = 0; 
+    this.t = 0; // seconds of waveform already generated
     this.pxPerSecond = 90;
     this.buffer = []; // {x, y} scrolling buffer in canvas space
     this._resize();
