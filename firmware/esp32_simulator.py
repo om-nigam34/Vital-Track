@@ -58,7 +58,6 @@ def scenario_for(name, sent):
 
 
 def next_reading(scenario, previous):
-    """Small random walk so the charts look like a live signal and not like noise."""
     ranges = SCENARIOS[scenario]
 
     def walk(prev, bounds, max_step):
@@ -76,7 +75,7 @@ def next_reading(scenario, previous):
 
 
 def explain_failure(resp):
-    """Turn an error response into a plain-English next step."""
+    # Turn an error response into a plain-English next step.
     try:
         detail = resp.json().get("error", resp.text[:120])
     except ValueError:
