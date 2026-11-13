@@ -2,9 +2,8 @@
 # before the real hardware is wired up. It talks to the server exactly like
 # the real firmware does.
 
-# Quick start (server must be running and `python seed.py` must have been run once):
-#     cd firmware
-#     python esp32_simulator.py
+# Quick start:
+#     python firmware/esp32_simulator.py
 
 # Options:
 #     --scenario  normal | fever | tachycardia | low_spo2 | mixed   (default: normal)
