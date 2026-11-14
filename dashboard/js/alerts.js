@@ -127,7 +127,7 @@
       if (err.status !== 401) showToast(err.message, "error");
     }
 
-    // New alerts arrive while the page is open, so refresh the list quietly
+    // New alerts arrive while the page is open
     setInterval(() => {
       if (!document.hidden) loadAlerts().catch(() => {});
     }, REFRESH_MS);
