@@ -1,6 +1,5 @@
-/* Thin wrappers around Chart.js (loaded via CDN in each HTML page) so the
-   page scripts stay readable. Chart.js is a library, not a framework - all
-   the surrounding app code is still plain HTML/CSS/JS. */
+// Thin wrappers around Chart.js (loaded via CDN in each HTML page) so the
+// page scripts stay readable. Chart.js is a library.
 
 function makeSparkline(canvas, values, color) {
   return new Chart(canvas, {
