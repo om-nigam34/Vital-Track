@@ -83,10 +83,10 @@ class ECGMonitor {
     }
     const midY = this.height / 2;
     const y = midY - amplitude * (this.height * 0.27);   // tallest spike (1.6) stays inside the panel
-    const x = this.width; // new sample enters from the right edge
+    const x = this.width;
 
     this.buffer.push({ x, y });
-    // scroll everything left
+    // scroll everything to left
     const dx = this.pxPerSecond * dt;
     this.buffer.forEach((p) => (p.x -= dx));
     this.buffer = this.buffer.filter((p) => p.x > -10);
