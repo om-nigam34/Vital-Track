@@ -1,19 +1,15 @@
 /*
-  VitalTrack ESP32 firmware (reference sketch)
+  VitalTrack ESP32 firmware
 
   Reads heart rate + SpO2 from a MAX30100 and temperature from a DS18B20,
   then POSTs a JSON reading to the Flask backend's /api/vitals/ingest route
-  every few seconds - the same endpoint firmware/esp32_simulator.py talks to.
+  every few seconds - the same endpoint where esp32_simulator.py talks to.
 
   Libraries needed (Arduino IDE -> Library Manager):
     - MAX30100lib          by OXullo Intersecans
     - OneWire
     - DallasTemperature
     - ArduinoJson
-
-  Wiring:
-    MAX30100  SDA -> ESP32 GPIO21, SCL -> ESP32 GPIO22, VIN -> 3V3, GND -> GND
-    DS18B20   DATA -> ESP32 GPIO4 (with a 4.7k pull-up resistor to 3V3)
 
   Before flashing:
     1. Fill in WIFI_SSID / WIFI_PASSWORD below.
@@ -31,8 +27,8 @@
 #include <DallasTemperature.h>
 
 // Configure before flashing
-const char* WIFI_SSID     = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+const char* WIFI_SSID     = "WIFI_SSID";
+const char* WIFI_PASSWORD = "WIFI_PASSWORD";
 const char* SERVER_URL    = "http://192.168.1.20:5000/api/vitals/ingest";
 const char* DEVICE_API_KEY = "PASTE_DEVICE_API_KEY_HERE";
 const unsigned long REPORT_INTERVAL_MS = 3000;
