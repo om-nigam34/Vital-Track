@@ -110,8 +110,7 @@ void loop() {
     tempSensor.requestTemperatures();
     float temperature = tempSensor.getTempCByIndex(0);
 
-    // Fall back to plausible values until the sensor has a stable finger reading,
-    // so the dashboard has something to show while warming up.
+    // Fall back to plausible values until the sensor has a stable finger reading.
     float heartRate = lastHeartRate > 0 ? lastHeartRate : 72;
     float spo2 = lastSpO2 > 0 ? lastSpO2 : 97;
 
